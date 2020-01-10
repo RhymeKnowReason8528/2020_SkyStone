@@ -108,18 +108,18 @@ public class WestCoastOneController extends OpMode {
         RightIntakeMotor.setPower(IntakePower);
 
         // Linear slide power
-        if (gamepad2.dpad_up) {
+        if (gamepad1.dpad_up) {
             LinearSlidePower = LinearSlideMotorMaxPower;
-        } else if (gamepad2.dpad_down) {
+        } else if (gamepad1.dpad_down) {
             LinearSlidePower = -LinearSlideMotorMaxPower;
         } else {
             LinearSlidePower = 0;
         } LinearSlideMotor.setPower(LinearSlidePower);
 
         // Gripper swivel servo
-        if (gamepad2.a) {
+        if (gamepad1.a) {
             GripperSwivelServo.setPosition(outwardGripperSwivelServoPosition);
-        } else if (gamepad2.b) {
+        } else if (gamepad1.b) {
             GripperSwivelServo.setPosition(inwardGripperSwivelServoPosition);
         }
 
