@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="West Coast (One Controller)")
@@ -23,6 +24,11 @@ public class WestCoastOneController extends OpMode {
     private DcMotor LeftIntakeMotor;
     private DcMotor RightIntakeMotor;
 
+    private Servo GripperSwivelServo;
+    private final double defaultGripperSwivelServoPosition = 0.1;
+    private final double outwardGripperSwivelServoPosition = 0.9;
+    private final double inwardGripperSwivelServoPosition = 0.1;
+
     private final double MaxPower = 1;
 
     private final double MaxDrivePower = Math.min(0.7, MaxPower);
@@ -37,6 +43,7 @@ public class WestCoastOneController extends OpMode {
     private final String LeftIntakeName = "left_intake";
     private final String RightIntakeName = "right_intake";
     private final String SlideMotorName = "slide_motor";
+    private final String GripperServoName = "idk_what_to_name_this";
 
     @Override
     public void init() {
@@ -65,6 +72,11 @@ public class WestCoastOneController extends OpMode {
         LinearSlideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         LinearSlidePower = 0;
+
+        // Block Gripper servo configuration
+        GripperSwivelServo = hardwareMap.get(Servo.class, GripperServoName);
+
+        GripperSwivelServo.setPosition(defaultGripperSwivelServoPosition);
 
         // Timer setup
         runtime = new ElapsedTime();
@@ -103,6 +115,13 @@ public class WestCoastOneController extends OpMode {
         } else {
             LinearSlidePower = 0;
         } LinearSlideMotor.setPower(LinearSlidePower);
+
+        // Gripper swivel servo
+        if (gamepad2.a) {
+            GripperSwivelServo.setPosition(outwardGripperSwivelServoPosition);
+        } else if (gamepad2.b) {
+            GripperSwivelServo.setPosition(inwardGripperSwivelServoPosition);
+        }
 
         // Telemetry
         telemetry.addData("Runtime: ", runtime);
