@@ -1,7 +1,7 @@
 ## Solution TeamCode
 
 Author: William Irwin
-Version: v1.0.0
+Version: v1.0.1
 
 TeamCode contains the code, info, and other ideas created by FTC (First Tech Challenge) team number
 8528.  Copying this code is violating the first policy of "gracious professionalism" and is not
