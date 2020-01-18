@@ -45,6 +45,8 @@ public class WestCoast extends OpMode {
     private final String SlideMotorName = "slide_motor";
     private final String GripperServoName = "idk_what_to_name_this";
 
+    private Player MusicPlayer;
+
     @Override
     public void init() {
         // Drive motor configuration
@@ -80,11 +82,16 @@ public class WestCoast extends OpMode {
 
         // Timer setup
         runtime = new ElapsedTime();
+
+        // Music Player
+        MusicPlayer = new Player(hardwareMap);
+        MusicPlayer.setSong("ucanttouchthis");
     }
 
     @Override
     public void start() {
         runtime.reset();
+        MusicPlayer.start();
     }
 
     @Override
@@ -139,5 +146,6 @@ public class WestCoast extends OpMode {
     public void stop() {
         LeftMotor.setPower(0);
         RightMotor.setPower(0);
+        MusicPlayer.stop();
     }
 }

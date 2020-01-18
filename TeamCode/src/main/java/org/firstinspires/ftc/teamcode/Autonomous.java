@@ -46,6 +46,8 @@ public class Autonomous extends LinearOpMode {
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
+    private Player MusicPlayer;
+
     public Autonomous() {
         /*VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
@@ -78,6 +80,10 @@ public class Autonomous extends LinearOpMode {
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection
         allTrackables.addAll(targetsSkyStone);*/
+
+        // Music Player
+        MusicPlayer = new Player(hardwareMap);
+        MusicPlayer.setSong("coconutmall");
     }
 
     String formatAngle(AngleUnit angleUnit, double angle) {
@@ -160,11 +166,12 @@ public class Autonomous extends LinearOpMode {
 
         int newLeftTarget = LeftMotor.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
         int newRightTarget = RightMotor.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
-        LeftMotor.setTargetPosition(newLeftTarget);
-        RightMotor.setTargetPosition(newRightTarget);
 
         LeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        LeftMotor.setTargetPosition(newLeftTarget);
+        RightMotor.setTargetPosition(newRightTarget);
 
         LeftMotor.setPower(Math.abs(power));
         RightMotor.setPower(Math.abs(power));
@@ -185,8 +192,9 @@ public class Autonomous extends LinearOpMode {
     }
 
     private boolean checkForBlock() {
-        int b = BlockSensor.blue(); int r = BlockSensor.red(); int g = BlockSensor.green();
-        return r > b && g > b && r + g > 100;
+        return true;
+        /*int b = BlockSensor.blue(); int r = BlockSensor.red(); int g = BlockSensor.green();
+        return r > b && g > b && r + g > 100;*/
     }
 
     private void changeCSLightStatus(boolean enable) {
@@ -206,7 +214,7 @@ public class Autonomous extends LinearOpMode {
         LeftIntakeMotor = hardwareMap.get(DcMotor.class, "left_intake");
         RightIntakeMotor = hardwareMap.get(DcMotor.class, "right_intake");
 
-        BlockSensor = hardwareMap.get(ColorSensor.class, "block_sensor");
+        //BlockSensor = hardwareMap.get(ColorSensor.class, "joe_sensor");
 
         LeftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -221,7 +229,6 @@ public class Autonomous extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-
         //Vuforia
 
         //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -233,18 +240,23 @@ public class Autonomous extends LinearOpMode {
         //vuforia = ClassFactory.getInstance().createVuforia(vuparameters);
 
         waitForStart();
+        MusicPlayer.start();
         while (opModeIsActive()) {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             gravity = imu.getGravity();
 
             changeCSLightStatus(true);
 
-            autoTurn(70, 0.4);
-            autoDrive(12, 0.4, 0.5);
+            for (int i=0; i < 5; i++) {
+                setIntakePower(1);
+                autoDrive(2,0.5,0.5);
+                if (checkForBlock()) {break;}
+            }
 
             changeCSLightStatus(false);
 
             break;
         }
+        MusicPlayer.stop();
     }
 }
