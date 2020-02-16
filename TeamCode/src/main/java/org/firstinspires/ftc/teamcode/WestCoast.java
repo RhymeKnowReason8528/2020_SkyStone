@@ -124,6 +124,7 @@ public class WestCoast extends OpMode {
             Arm.setPower(0);
         }
 
+        //
         if (gamepad2.right_bumper) {
             Gripper.setPower(1);
         } else if (gamepad2.left_bumper) {
