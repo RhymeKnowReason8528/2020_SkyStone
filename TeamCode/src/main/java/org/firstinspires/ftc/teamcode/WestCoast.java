@@ -30,7 +30,8 @@ public class WestCoast extends OpMode {
 
     private final double MaxDrivePower = Math.min(0.7, MaxPower);
     private final double MaxIntakePower = Math.min(0.7, MaxPower);
-
+    private final double MaxArmPower = Math.min(1, MaxPower);
+    private final double MaxGripperPower = Math.min(1, MaxPower);
     private final double LinearSlideMotorMaxPower = Math.min(1, MaxPower);
 
     private ElapsedTime runtime;
@@ -115,20 +116,20 @@ public class WestCoast extends OpMode {
             LinearSlidePower = 0;
         } LinearSlideMotor.setPower(LinearSlidePower);
 
-        // Gripper swivel servo
+        // Arm control
         if (gamepad2.a) {
-            Arm.setPower(1);
+            Arm.setPower(MaxArmPower);
         } else if (gamepad2.x) {
-            Arm.setPower(-1);
+            Arm.setPower(-MaxArmPower);
         } else {
             Arm.setPower(0);
         }
 
-        //
+        // Gripper control
         if (gamepad2.right_bumper) {
-            Gripper.setPower(1);
+            Gripper.setPower(MaxGripperPower);
         } else if (gamepad2.left_bumper) {
-            Gripper.setPower(-1);
+            Gripper.setPower(-MaxGripperPower);
         } else {
             Gripper.setPower(0);
         }
