@@ -24,10 +24,8 @@ public class WestCoastOneController extends OpMode {
     private DcMotor LeftIntakeMotor;
     private DcMotor RightIntakeMotor;
 
-    private Servo GripperSwivelServo;
-    private final double defaultGripperSwivelServoPosition = 0.1;
-    private final double outwardGripperSwivelServoPosition = 0.9;
-    private final double inwardGripperSwivelServoPosition = 0.1;
+    private DcMotor Gripper;
+    private DcMotor Arm;
 
     private final double MaxPower = 1;
 
@@ -42,8 +40,9 @@ public class WestCoastOneController extends OpMode {
     private final String RightMotorName = "right_drive";
     private final String LeftIntakeName = "left_intake";
     private final String RightIntakeName = "right_intake";
-    private final String SlideMotorName = "slide_motor";
-    private final String GripperServoName = "idk_what_to_name_this";
+    private final String LinearActuatorName = "linear_actuator";
+    private final String GripperName = "gripper";
+    private final String ArmName = "arm";
 
     @Override
     public void init() {
@@ -67,16 +66,16 @@ public class WestCoastOneController extends OpMode {
         IntakePower = 0;
 
         // Slide motor configuration
-        LinearSlideMotor = hardwareMap.get(DcMotor.class, SlideMotorName);
+        LinearSlideMotor = hardwareMap.get(DcMotor.class, LinearActuatorName);
 
         LinearSlideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         LinearSlidePower = 0;
 
         // Block Gripper servo configuration
-        GripperSwivelServo = hardwareMap.get(Servo.class, GripperServoName);
+        Gripper = hardwareMap.get(DcMotor.class, GripperName);
+        Arm = hardwareMap.get(DcMotor.class, ArmName);
 
-        GripperSwivelServo.setPosition(defaultGripperSwivelServoPosition);
 
         // Timer setup
         runtime = new ElapsedTime();
@@ -118,9 +117,19 @@ public class WestCoastOneController extends OpMode {
 
         // Gripper swivel servo
         if (gamepad1.a) {
-            GripperSwivelServo.setPosition(outwardGripperSwivelServoPosition);
-        } else if (gamepad1.b) {
-            GripperSwivelServo.setPosition(inwardGripperSwivelServoPosition);
+            Arm.setPower(1);
+        } else if (gamepad2.x) {
+            Arm.setPower(-1);
+        } else {
+            Arm.setPower(0);
+        }
+
+        if (gamepad1.right_bumper) {
+            Gripper.setPower(1);
+        } else if (gamepad2.left_bumper) {
+            Gripper.setPower(-1);
+        } else {
+            Arm.setPower(0);
         }
 
         // Telemetry
