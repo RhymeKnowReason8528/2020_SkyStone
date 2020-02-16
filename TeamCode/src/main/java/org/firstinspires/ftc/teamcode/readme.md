@@ -14,7 +14,6 @@ Autonomous details robot instructions which have to run without human input
 West Coast details robot instructions used by the team to control the robot
 West Coast (One Controller) details robot instructions which are used on one controller
 
-Notes (for all the world to see)
- - Rhyme Know Reason is lit
- - I support Joe's individuality
- - Skylar is a silly goose
+Changes for this update:
+ - West Coast has been reconfigured to no longer support a linear slide
+ - West Coast One Controller has been configured to match 

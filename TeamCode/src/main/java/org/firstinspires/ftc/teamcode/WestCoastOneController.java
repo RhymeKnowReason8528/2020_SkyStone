@@ -14,8 +14,6 @@ public class WestCoastOneController extends OpMode {
 
     private double IntakePower;
 
-    private double LinearSlidePower;
-
     private DcMotor LeftMotor;
     private DcMotor RightMotor;
 
@@ -24,17 +22,10 @@ public class WestCoastOneController extends OpMode {
     private DcMotor LeftIntakeMotor;
     private DcMotor RightIntakeMotor;
 
-    private Servo GripperSwivelServo;
-    private final double defaultGripperSwivelServoPosition = 0.1;
-    private final double outwardGripperSwivelServoPosition = 0.9;
-    private final double inwardGripperSwivelServoPosition = 0.1;
-
     private final double MaxPower = 1;
 
     private final double MaxDrivePower = Math.min(0.7, MaxPower);
     private final double MaxIntakePower = Math.min(0.7, MaxPower);
-
-    private final double LinearSlideMotorMaxPower = Math.min(0.6, MaxPower);
 
     private ElapsedTime runtime;
 
@@ -42,8 +33,6 @@ public class WestCoastOneController extends OpMode {
     private final String RightMotorName = "right_drive";
     private final String LeftIntakeName = "left_intake";
     private final String RightIntakeName = "right_intake";
-    private final String SlideMotorName = "slide_motor";
-    private final String GripperServoName = "idk_what_to_name_this";
 
     private Player MusicPlayer;
 
@@ -67,18 +56,6 @@ public class WestCoastOneController extends OpMode {
         RightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         IntakePower = 0;
-
-        // Slide motor configuration
-        LinearSlideMotor = hardwareMap.get(DcMotor.class, SlideMotorName);
-
-        LinearSlideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        LinearSlidePower = 0;
-
-        // Block Gripper servo configuration
-        GripperSwivelServo = hardwareMap.get(Servo.class, GripperServoName);
-
-        GripperSwivelServo.setPosition(defaultGripperSwivelServoPosition);
 
         // Timer setup
         runtime = new ElapsedTime();
@@ -114,22 +91,6 @@ public class WestCoastOneController extends OpMode {
         LeftIntakeMotor.setPower(IntakePower);
         RightIntakeMotor.setPower(IntakePower);
 
-        // Linear slide power
-        if (gamepad1.dpad_up) {
-            LinearSlidePower = LinearSlideMotorMaxPower;
-        } else if (gamepad1.dpad_down) {
-            LinearSlidePower = -LinearSlideMotorMaxPower;
-        } else {
-            LinearSlidePower = 0;
-        } LinearSlideMotor.setPower(LinearSlidePower);
-
-        // Gripper swivel servo
-        if (gamepad1.a) {
-            GripperSwivelServo.setPosition(outwardGripperSwivelServoPosition);
-        } else if (gamepad1.b) {
-            GripperSwivelServo.setPosition(inwardGripperSwivelServoPosition);
-        }
-
         // Telemetry
         telemetry.addData("Runtime: ", runtime);
         telemetry.addLine();
@@ -137,8 +98,6 @@ public class WestCoastOneController extends OpMode {
         telemetry.addData("Right Power: ", RightMotorPower);
         telemetry.addLine();
         telemetry.addData("Intake Power: ", IntakePower);
-        telemetry.addLine();
-        telemetry.addData("Linear Slide Power: ", LinearSlidePower);
         telemetry.update();
     }
 

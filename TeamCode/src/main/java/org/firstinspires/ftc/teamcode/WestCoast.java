@@ -14,27 +14,16 @@ public class WestCoast extends OpMode {
 
     private double IntakePower;
 
-    private double LinearSlidePower;
-
     private DcMotor LeftMotor;
     private DcMotor RightMotor;
 
     private DcMotor LeftIntakeMotor;
     private DcMotor RightIntakeMotor;
 
-    private Servo GripperSwivelServo;
-    private final double defaultGripperSwivelServoPosition = 0;
-    private final double outwardGripperSwivelServoPosition = 1.0;
-    private final double inwardGripperSwivelServoPosition = 1.0;
-
-    private DcMotor LinearSlideMotor;
-
     private final double MaxPower = 1;
 
     private final double MaxDrivePower = Math.min(0.7, MaxPower);
     private final double MaxIntakePower = Math.min(0.7, MaxPower);
-
-    private final double LinearSlideMotorMaxPower = Math.min(1, MaxPower);
 
     private ElapsedTime runtime;
 
@@ -42,8 +31,6 @@ public class WestCoast extends OpMode {
     private final String RightMotorName = "right_drive";
     private final String LeftIntakeName = "left_intake";
     private final String RightIntakeName = "right_intake";
-    private final String SlideMotorName = "slide_motor";
-    private final String GripperServoName = "idk_what_to_name_this";
 
     private Player MusicPlayer;
 
@@ -67,25 +54,12 @@ public class WestCoast extends OpMode {
         RightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         IntakePower = 0;
-
-        // Slide motor configuration
-        LinearSlideMotor = hardwareMap.get(DcMotor.class, SlideMotorName);
-
-        LinearSlideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        LinearSlidePower = 0;
-
-        // Block Gripper servo configuration
-        GripperSwivelServo = hardwareMap.get(Servo.class, GripperServoName);
-
-        GripperSwivelServo.setPosition(defaultGripperSwivelServoPosition);
-
         // Timer setup
         runtime = new ElapsedTime();
 
         // Music Player
         MusicPlayer = new Player(hardwareMap);
-        MusicPlayer.setSong("ucanttouchthis");
+        MusicPlayer.setSong("coconutmall");
     }
 
     @Override
@@ -107,28 +81,19 @@ public class WestCoast extends OpMode {
         IntakePower = Math.min(MaxIntakePower, gamepad2.right_trigger);
         IntakePower -= Math.min(MaxIntakePower, gamepad2.left_trigger);
 
+        // Kill switch
+        if (gamepad1.back || gamepad2.back) {
+            LeftMotorPower = 0;
+            RightMotorPower = 0;
+            IntakePower = 0;
+        }
+
         // Motor power
         LeftMotor.setPower(LeftMotorPower);
         RightMotor.setPower(RightMotorPower);
 
         LeftIntakeMotor.setPower(IntakePower);
         RightIntakeMotor.setPower(IntakePower);
-
-        // Linear slide power
-        if (gamepad2.dpad_up) {
-            LinearSlidePower = LinearSlideMotorMaxPower;
-        } else if (gamepad2.dpad_down) {
-            LinearSlidePower = -LinearSlideMotorMaxPower;
-        } else {
-            LinearSlidePower = 0;
-        } LinearSlideMotor.setPower(LinearSlidePower);
-
-        // Gripper swivel servo
-        if (gamepad2.a) {
-            GripperSwivelServo.setPosition(outwardGripperSwivelServoPosition);
-        } else if (gamepad2.b) {
-            GripperSwivelServo.setPosition(inwardGripperSwivelServoPosition);
-        }
 
         // Telemetry
         telemetry.addData("Runtime: ", runtime);
@@ -137,8 +102,6 @@ public class WestCoast extends OpMode {
         telemetry.addData("Right Power: ", RightMotorPower);
         telemetry.addLine();
         telemetry.addData("Intake Power: ", IntakePower);
-        telemetry.addLine();
-        telemetry.addData("Linear Slide Power: ", LinearSlidePower);
         telemetry.update();
     }
 

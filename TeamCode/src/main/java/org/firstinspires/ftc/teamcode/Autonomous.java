@@ -198,7 +198,7 @@ public class Autonomous extends LinearOpMode {
     }
 
     private void changeCSLightStatus(boolean enable) {
-        BlockSensor.enableLed(enable);
+        //BlockSensor.enableLed(enable);
     }
 
     @Override
