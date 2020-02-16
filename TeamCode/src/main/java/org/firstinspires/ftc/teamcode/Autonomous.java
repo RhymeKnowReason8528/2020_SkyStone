@@ -206,8 +206,6 @@ public class Autonomous extends LinearOpMode {
         LeftIntakeMotor = hardwareMap.get(DcMotor.class, "left_intake");
         RightIntakeMotor = hardwareMap.get(DcMotor.class, "right_intake");
 
-        BlockSensor = hardwareMap.get(ColorSensor.class, "block_sensor");
-
         LeftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 

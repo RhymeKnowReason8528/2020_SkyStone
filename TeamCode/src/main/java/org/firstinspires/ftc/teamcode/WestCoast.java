@@ -130,7 +130,7 @@ public class WestCoast extends OpMode {
         } else if (gamepad2.left_bumper) {
             Gripper.setPower(-1);
         } else {
-            Arm.setPower(0);
+            Gripper.setPower(0);
         }
 
         // Telemetry
