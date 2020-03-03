@@ -44,6 +44,8 @@ public class WestCoast extends OpMode {
     private final String GripperName = "gripper";
     private final String ArmName = "arm";
 
+    private Player player;
+
     @Override
     public void init() {
         // Drive motor configuration
@@ -80,11 +82,15 @@ public class WestCoast extends OpMode {
 
         // Timer setup
         runtime = new ElapsedTime();
+
+        player = new Player(hardwareMap);
+        player.setSong("megalovania");
     }
 
     @Override
     public void start() {
         runtime.reset();
+        player.start();
     }
 
     @Override
@@ -127,9 +133,9 @@ public class WestCoast extends OpMode {
 
         // Gripper control
         if (gamepad2.right_bumper) {
-            Gripper.setPower(MaxGripperPower);
+            Gripper.setPower(1);
         } else if (gamepad2.left_bumper) {
-            Gripper.setPower(-MaxGripperPower);
+            Gripper.setPower(-1);
         } else {
             Gripper.setPower(0);
         }
@@ -150,5 +156,7 @@ public class WestCoast extends OpMode {
     public void stop() {
         LeftMotor.setPower(0);
         RightMotor.setPower(0);
+
+        player.stop();
     }
 }

@@ -8,23 +8,32 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="RKR Autonomous")
-public class Autonomous extends LinearOpMode {
+import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
-    /*private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="RKR Autonomous (Left Side)")
+public class Autonomous_R extends LinearOpMode {
+
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final String VUFORIA_KEY = "ARjoxi3/////AAABmXAUt9n1wEjDvzITTR3QybQ8V/6WWaLzzVteSXjxrJxxyilUnEB7VpV53J57ifvzM7/fbFhFTg7GNDdZs+QVVoZQ7Pt0SjP9THhkkR9zj42ztarG+IUc8Id5pW1juuKzHyiKz4sJWmDI6I3RVsa9R/H4rWUcdQUvWBF7X/lTOSMOHHPuz09pIDtLU/BTpL47hjCefksIY4VJ0KurxkrwcvbHufGh50i7j5jW74dt/NJrG2NPkt134vmeyzLI3/cBNIsOOZrWetxzQ0cXPAkS+3MItc53kFV+RTYt+C2t2xlaydfbAvboHFXExl+nHzh5AA+12JbvK3ikBBOnmORkkoDD0ncscgD6lKeEkQvOl0zw";
     private VuforiaLocalizer vuforia = null;
     private boolean targetVisible = false;
 
-    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();*/
+    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 
     // The IMU sensor object
     BNO055IMU imu;
@@ -39,15 +48,15 @@ public class Autonomous extends LinearOpMode {
     private DcMotor LeftIntakeMotor;
     private DcMotor RightIntakeMotor;
 
-    private ColorSensor BlockSensor;
+    private Player player;
 
     static final double     COUNTS_PER_MOTOR_REV   = 1440 ;
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
-    public Autonomous() {
-        /*VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+    private void vuforiaInit() {
+        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
@@ -77,7 +86,18 @@ public class Autonomous extends LinearOpMode {
         rear2.setName("Rear Perimeter 2");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection
-        allTrackables.addAll(targetsSkyStone);*/
+        allTrackables.addAll(targetsSkyStone);
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters vuparameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        vuparameters.vuforiaLicenseKey = VUFORIA_KEY;
+        vuparameters.cameraDirection   = CAMERA_CHOICE;
+
+        vuforia = ClassFactory.getInstance().createVuforia(vuparameters);
+    }
+
+    public Autonomous_R() {
     }
 
     String formatAngle(AngleUnit angleUnit, double angle) {
@@ -92,18 +112,12 @@ public class Autonomous extends LinearOpMode {
         return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
     }
 
-    void setIntakePower(double power) {
-        LeftIntakeMotor.setPower(power);
-        RightIntakeMotor.setPower(power);
-    }
-
     public void doTelemetry() {
         telemetry.addData("Heading: ", formatAngle(angles.angleUnit, angles.firstAngle));
         telemetry.addData("Roll: ", formatAngle(angles.angleUnit, angles.secondAngle));
         telemetry.addData("Pitch: ", formatAngle(angles.angleUnit, angles.thirdAngle));
-        telemetry.addData("Sensed Block: ", checkForBlock());
 
-        /*targetVisible = false;
+        targetVisible = false;
         for (VuforiaTrackable trackable : allTrackables) {
             if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
                 telemetry.addData("Visible Target: ", trackable.getName());
@@ -111,17 +125,9 @@ public class Autonomous extends LinearOpMode {
             }
         } if (!targetVisible) {
             telemetry.addData("Visible Target: ", "None");
-        }*/
+        }
 
         telemetry.update();
-    }
-
-    public void resetEncoders() {
-        LeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void autoTurn(double degrees, double power) {
@@ -156,8 +162,6 @@ public class Autonomous extends LinearOpMode {
     public void autoDrive(double inches, double power, double times) {
         ElapsedTime timer = new ElapsedTime();
 
-        resetEncoders();
-
         int newLeftTarget = LeftMotor.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
         int newRightTarget = RightMotor.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
         LeftMotor.setTargetPosition(newLeftTarget);
@@ -170,7 +174,6 @@ public class Autonomous extends LinearOpMode {
         RightMotor.setPower(Math.abs(power));
 
         timer.reset();
-        double startTime = timer.seconds();
         while (opModeIsActive() && (LeftMotor.isBusy() && RightMotor.isBusy()) && timer.seconds()<times) {
             telemetry.addData("Targets: ",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
             telemetry.addData("Current Pos: ",  "Running at %7d :%7d",
@@ -184,30 +187,8 @@ public class Autonomous extends LinearOpMode {
         RightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    private boolean checkForBlock() {
-        int b = BlockSensor.blue(); int r = BlockSensor.red(); int g = BlockSensor.green();
-        return r > b && g > b && r + g > 100;
-    }
-
-    private void changeCSLightStatus(boolean enable) {
-        BlockSensor.enableLed(enable);
-    }
-
-    @Override
-    public void runOpMode() {
-        // Drive motor configuration
-        LeftMotor = hardwareMap.get(DcMotor.class, "left_drive");
-        RightMotor = hardwareMap.get(DcMotor.class, "right_drive");
-
-        LeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        RightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Intake motor configuration
-        LeftIntakeMotor = hardwareMap.get(DcMotor.class, "left_intake");
-        RightIntakeMotor = hardwareMap.get(DcMotor.class, "right_intake");
-
-        LeftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        RightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    public void initialize() {
+        // Initialization code
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -220,29 +201,27 @@ public class Autonomous extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        //Vuforia
+        player = new Player(hardwareMap);
+        player.setSong("ucanttouchthis");
 
-        //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //VuforiaLocalizer.Parameters vuparameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        // As it says
+        vuforiaInit();
+    }
 
-        //vuparameters.vuforiaLicenseKey = VUFORIA_KEY;
-        //vuparameters.cameraDirection   = CAMERA_CHOICE;
-
-        //vuforia = ClassFactory.getInstance().createVuforia(vuparameters);
+    @Override
+    public void runOpMode() {
+        initialize();
 
         waitForStart();
+        player.start();
+
         while (opModeIsActive()) {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             gravity = imu.getGravity();
 
-            changeCSLightStatus(true);
-
-            autoTurn(70, 0.4);
-            autoDrive(12, 0.4, 0.5);
-
-            changeCSLightStatus(false);
-
-            break;
+            doTelemetry();
         }
+        while (opModeIsActive()) {}
+        player.stop();
     }
 }
